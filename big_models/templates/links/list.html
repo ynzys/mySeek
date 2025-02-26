@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Model Links</title>
+    <style>
+        /* 页面整体样式 */
+        body {
+            background-color: #f4f4f4f4;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: auto;
+        }
+
+        /* 标题行 */
+        .header {
+            background: linear-gradient(45deg, #000, #333);
+            color: white;
+            padding: 20px 50px; /* 上下 20px，左右 50px */
+            text-align: left; /* 标题左对齐 */
+            font-size: 24px;
+            margin-bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 50px; /* 总访问量与右边的距离 */
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 20px; /* 左侧留 50px */
+        }
+
+        .header-total-clicks {
+            font-size: 16px;
+            color: yellow; /* 黄色字体 */
+            margin-right: 20px; /* 右侧留 50px */
+        }
+        .header-total-clicks span {
+            cursor: pointer; /* 鼠标悬停时显示指针 */
+            text-decoration: underline; /* 添加下划线 */
+}
+
+        /* 卡片容器 */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(4, 0.9fr); /* 每行显示 4 列 */
+            gap: 20px;
+            padding: 0 10px;
+            order: 2;
+            flex: 1;
+            width: 100%; /* 设置宽度为 90% */
+            max-width: 1600px; /* 最大宽度 */
+        }
+
+        /* 响应式设计 */
+        @media (max-width:992px) {
+            .card-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width:768px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width:576px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: linear-gradient(45deg, #000, #333);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            position: relative;
+            transition: transform 0.2s;
+            height: 150px; /* 设置高度 */
+            width: 90%; /* 设置宽度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: grab; /* 鼠标悬停时显示抓取指针 */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card:active {
+            cursor: grabbing; /* 鼠标按下时显示拖拽指针 */
+        }
+
+        .card-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .card h2 {
+            color: white;
+            margin-top: 0;
+            font-size: 16px;
+        }
+
+        .card p {
+            color: #ccc;
+            line-height: 1.4;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        /* 链接样式 */
+        .link-list {
+            display: block;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 0 0 8px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .link-list:hover {
+            background-color: #45a049;
+        }
+
+        /* 空白卡片样式 */
+        .placeholder-card {
+            background: linear-gradient(45deg, #333, #000);
+            border-radius: 8px;
+            border: 1px dashed #000;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: not-allowed;
+        }
+
+        .placeholder-card .card-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .placeholder-card h2 {
+            color: white;
+            margin-top: 2px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .placeholder-card p {
+            color: #ccc;
+            line-height: 1.4;
+            margin: 5px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .placeholder-card .link-list {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* 访问量样式 */
+        .click-count {
+            color: yellow; /* 黄色 */
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: left; /* 左对齐 */
+            padding:5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">mySeek</div>
+        <div class="header-total-clicks">Total Visits: <span id="total-clicks" onclick="refreshPage()">{{ total_clicks }}</span></div>
+    </div>
+
+    <!-- 确保这个表单存在，即使它不可见 -->
+    <form method="post" action="#" style="display:none;">
+        {% csrf_token %}
+    </form>
+
+    <div id="card-container" class="card-container">
+        {% for link in links %}
+            <div class="card" data-id="{{ link.id }}">
+                <div class="card-content">
+                    <h2>{{ link.name }}</h2>
+                    <p>{{ link.description }}</p>
+                </div>
+                <div class="click-count">访问量: {{ link.click_count }}</div>
+                <a href="{{ link.url }}" target="_blank" class="link-list" onclick="incrementClickCount({{ link.id }})">Visit Model Page</a>
+            </div>
+        {% empty %}
+            <div class="card placeholder-card" data-id="0">
+                <div class="card-content">
+                    <h2>该卡片未定义</h2>
+                    <p></p>
+                </div>
+                <div class="click-count">访问量: 0</div>
+                <span class="link-list">No link</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var el = document.getElementById('card-container');
+            new Sortable(el, {
+                group: 'shared',
+                animation: 150,
+                store: null,
+                fallbackOnBody: true,
+                onStart: function (evt) {
+                    evt.item.style.transform = 'rotate(3deg)';
+                },
+                onEnd: function (evt) {
+                    evt.item.style.transform = '';
+                }
+            });
+        });
+
+        function incrementClickCount(id) {
+            var csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+            fetch('/increment-click-count/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => {
+                console.log('Response:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        // 刷新页面函数
+        function refreshPage() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
